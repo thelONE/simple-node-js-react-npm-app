@@ -13,9 +13,13 @@ pipeline {
             }
         }
         stage('File Compression') {
+            // steps {
+            //     echo '======File-Compression======'
+            //     sh "zip -r docker-web-deploy.zip node_modules public package.json package-lock.json"
+            // }
             steps {
                 echo '======File-Compression======'
-                sh "zip -r docker-web-deploy.zip node_modules public package.json package-lock.json"
+                zip zipFile: 'docker-web-deploy.zip' exclude: 'node_modules'
             }
         }
         stage('Upload to S3') {
