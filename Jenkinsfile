@@ -8,20 +8,33 @@ pipeline {
     stages {
         stage('Build') { 
             steps {
-                sh 'npm install' 
+                sh 'npm install'
+                sh 'npm build'
             }
         }
-        stage('Test') {
+        stage('File Compression') {
             steps {
-                sh './jenkins/scripts/test.sh'
+                echo '======File-Compression======'
+                script{
+                    def packageJson = readJSON file: "package.json"
+                    VERSION = packageJson.version
+                }
+                bat "zip -r docker-web-deploy-${VERSION}.zip node_modules public package.json package-lock.json"
             }
         }
-        stage('Deliver') {
+        stage('Upload to S3') {
             steps {
-                sh './jenkins/scripts/deliver.sh'
-                input message: 'Finished using the web site? (Click "Proceed" to continue)'
-                sh './jenkins/scripts/kill.sh'
+                echo '======Upload-to-S3======'
+                bat "aws s3 cp docker-web-deploy-${VERSION}.zip s3://elasticbeanstalk-ap-northeast-2-367976890732/app/"
+            }
+        }
+        stage('Deploy'){
+            steps {
+                echo '======Deploy======'
+                bat "aws elasticbeanstalk create-application-version --application-name docker-web-deploy --version-label docker-web-deploy-${BUILD_NUMBER} --source-bundle S3Bucket=\"elasticbeanstalk-ap-northeast-2-367976890732\",S3Key=\"docker-web-deploy-${VERSION}.zip\""
+                bat "aws elasticbeanstalk update-environment --environment-name Dockerwebdeploy-env --version-label docker-web-deploy-${BUILD_NUMBER}"
             }
         }
     }
 }
+// https://jeongyunlog.netlify.app/develop/devops/nextjs-jenkins-and-elb/
