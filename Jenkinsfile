@@ -9,8 +9,7 @@ pipeline {
         stage('Build') { 
             steps {
                 sh 'npm install'
-                sh 'export NODE_OPTIONS=--openssl-legacy-provider'
-                sh 'npm run build'
+                sh 'export NODE_OPTIONS=--openssl-legacy-provider && npm run build'
             }
         }
         stage('File Compression') {
