@@ -15,7 +15,7 @@ pipeline {
         stage('File Compression') {
             steps {
                 echo '======File-Compression======'
-                bat "zip -r docker-web-deploy.zip node_modules public package.json package-lock.json"
+                sh "zip -r docker-web-deploy.zip node_modules public package.json package-lock.json"
             }
         }
         stage('Upload to S3') {
