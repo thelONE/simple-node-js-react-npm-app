@@ -19,7 +19,9 @@ pipeline {
             // }
             steps {
                 echo '======File-Compression======'
-                zip zipFile: 'docker-web-deploy.zip', exclude: 'node_modules'
+                script{
+                    zip zipFile: 'docker-web-deploy.zip', exclude: 'node_modules'
+                }
             }
         }
         stage('Upload to S3') {
